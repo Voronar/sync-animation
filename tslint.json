@@ -1,0 +1,10 @@
+{
+  "extends": ["tslint-config-airbnb", "tslint-react"],
+  "rules": {
+    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
+    "import-name": false,
+    "variable-name": [true,
+      "allow-pascal-case"
+    ]
+  }
+}
