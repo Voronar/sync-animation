@@ -1,26 +1,27 @@
 import React from 'react';
 
-type SyncAnimationProps = {
-  halfCycle: number;
-  children(animationReadiness: boolean): React.ReactNode;
+export const SyncAnimationContext = React.createContext<[boolean, number]>([true, 1000]);
+
+type SyncAnimationProviderProps = {
+  cycleTime: number;
 };
 
-type SyncAnimationState = {
+type SyncAnimationProviderState = {
   animationReadiness: boolean;
 };
 
-class SyncAnimation extends React.PureComponent<SyncAnimationProps, SyncAnimationState> {
+export class SyncAnimationProvider extends React.PureComponent<SyncAnimationProviderProps, SyncAnimationProviderState> {
   private animationReadiness = true;
   private timerId: NodeJS.Timeout | null = null;
   private frameId: number | null = null;
 
-  state: SyncAnimationState = {
+  state: SyncAnimationProviderState = {
     animationReadiness: true,
   };
   componentDidMount() {
     this.timerId = setInterval(() => {
       this.animationReadiness = true;
-    }, this.props.halfCycle);
+    }, this.props.cycleTime);
 
     this.frameId = requestAnimationFrame(this.tick);
   }
@@ -51,8 +52,10 @@ class SyncAnimation extends React.PureComponent<SyncAnimationProps, SyncAnimatio
     }
   }
   render() {
-    return this.props.children(this.state.animationReadiness);
+    return (
+    <SyncAnimationContext.Provider value={[this.state.animationReadiness, this.props.cycleTime]}>
+      {this.props.children}
+    </SyncAnimationContext.Provider>
+    );
   }
 }
-
-export default SyncAnimation;
