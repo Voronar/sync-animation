@@ -1,9 +1,9 @@
+import React from 'react';
 import styled, { keyframes, css } from 'styled-components';
 
 const blink = keyframes`
   0% {
     background: transparent;
-    color: black;
   }
 
   50% {
@@ -24,9 +24,54 @@ export const LampsGrid = styled.section`
   grid-auto-rows: ${lampSizePx}px;
 `;
 
-type StyledLampProps = {
+export type LampType = {
+  id: string;
+  alarm: boolean;
+  name: string;
+};
+
+type LampProps = {
+  lamp: LampType;
+  animationReadiness: boolean;
+  onClick(lamp: LampType): void;
+};
+
+type LampState = {
   alarm: boolean;
 };
+
+export class Lamp extends React.PureComponent<LampProps, LampState> {
+  constructor(props: LampProps) {
+    super(props);
+
+    this.state = {
+      alarm: props.lamp.alarm,
+    };
+  }
+  componentDidUpdate(prevProps: LampProps) {
+    if (prevProps.animationReadiness !== this.props.animationReadiness && this.props.animationReadiness) {
+
+      if (prevProps.lamp.alarm !== this.state.alarm) {
+        this.setState({
+          alarm: this.props.lamp.alarm,
+        });
+      }
+    }
+  }
+  handleClick = () => {
+    this.props.onClick(this.props.lamp);
+  }
+  render() {
+    return (
+      <StyledLamp
+        onClick={this.handleClick}
+        alarm={this.state.alarm}
+      >
+        {this.props.children}
+      </StyledLamp>
+    );
+  }
+}
 
 export const StyledLamp = styled.div`
   display: flex;
@@ -42,7 +87,7 @@ export const StyledLamp = styled.div`
   transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1);
   will-change: box-shadow;
 
-  ${(props: StyledLampProps) => props.alarm && css`
+  ${(props: { alarm: boolean }) => props.alarm && css`
     animation: ${blink} 2s linear infinite;
   `}
 

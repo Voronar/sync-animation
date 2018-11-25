@@ -1,13 +1,7 @@
 import React from 'react';
 import uuidv1 from 'uuid/v1';
-import { StyledLamp, LampsGrid } from './styled';
+import { Lamp, LampsGrid, StyledLamp, LampType } from './styled';
 import SyncAnimation from './SyncAnimation';
-
-type LampType = {
-  id: string;
-  alarm: boolean;
-  name: string;
-};
 
 type AppState = {
   lamps: LampType[];
@@ -37,33 +31,29 @@ class App extends React.PureComponent<{}, AppState> {
       lamps: state.lamps.slice(0, state.lamps.length - 1),
     }));
   }
-  handleAlarmToggle = (e: React.MouseEvent<HTMLDivElement>) => {
-    const index = e.currentTarget.dataset['id'];
-
-    if (index !== undefined) {
-      this.setState(state => ({
-        ...state,
-        lamps: state.lamps.map(lamp => lamp.id === index ? {
-          ...lamp,
-          alarm: !lamp.alarm,
-        } : lamp),
-      }));
-    }
+  handleAlarmToggle = (toggledLamp: LampType) => {
+    this.setState(state => ({
+      ...state,
+      lamps: state.lamps.map(lamp => lamp.id === toggledLamp.id ? {
+        ...lamp,
+        alarm: !lamp.alarm,
+      } : lamp),
+    }));
   }
 
   // tslint:disable:jsx-no-multiline-js
   render() {
     const lamps = (
-      <SyncAnimation duration={1}>
-        {() => this.state.lamps.map(lamp => (
-          <StyledLamp
-            data-id={lamp.id}
+      <SyncAnimation halfCycle={2000}>
+        {readiness => this.state.lamps.map(lamp => (
+          <Lamp
             key={lamp.id}
-            alarm={lamp.alarm}
+            lamp={lamp}
+            animationReadiness={readiness}
             onClick={this.handleAlarmToggle}
           >
             <div>{lamp.name}</div>
-          </StyledLamp>
+          </Lamp>
         ))}
       </SyncAnimation>
     );

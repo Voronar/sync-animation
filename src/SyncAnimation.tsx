@@ -1,7 +1,7 @@
 import React from 'react';
 
 type SyncAnimationProps = {
-  duration: number;
+  halfCycle: number;
   children(animationReadiness: boolean): React.ReactNode;
 };
 
@@ -10,23 +10,48 @@ type SyncAnimationState = {
 };
 
 class SyncAnimation extends React.PureComponent<SyncAnimationProps, SyncAnimationState> {
-  private timestamp = -1;
+  private animationReadiness = true;
+  private timerId: NodeJS.Timeout | null = null;
+  private frameId: number | null = null;
+
   state: SyncAnimationState = {
     animationReadiness: true,
   };
   componentDidMount() {
-    requestAnimationFrame(this.tick);
-  }
-  tick = (time: number) => {
-    if (time - this.timestamp === 2000) {
-    }
-    // console.log('ready', time);
+    this.timerId = setInterval(() => {
+      this.animationReadiness = true;
+    }, this.props.halfCycle);
 
-    this.timestamp = time;
-    requestAnimationFrame(this.tick);
+    this.frameId = requestAnimationFrame(this.tick);
+  }
+  tick = () => {
+    if (this.animationReadiness) {
+      this.animationReadiness = false;
+
+      if (!this.state.animationReadiness) {
+        this.setState({ animationReadiness: true });
+      }
+
+      this.frameId = requestAnimationFrame(this.tick);
+    }
+
+    if (this.state.animationReadiness) {
+      this.setState({ animationReadiness: false });
+    }
+
+    this.frameId = requestAnimationFrame(this.tick);
+  }
+  componentWillUnmount() {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+    }
+
+    if (this.frameId) {
+      cancelAnimationFrame(this.frameId);
+    }
   }
   render() {
-    return this.props.children(true);
+    return this.props.children(this.state.animationReadiness);
   }
 }
 
