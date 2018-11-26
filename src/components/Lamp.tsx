@@ -1,8 +1,7 @@
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
-import { withSyncAnimation } from './SyncAnimation';
-import { WithSyncAnimationInjectedProps } from './SyncAnimation/withSyncAnimation';
+import { WithSyncAnimationInjectedProps, withSyncAnimation } from './SyncAnimation/withSyncAnimation';
 
 const blink = keyframes`
   0% {
@@ -39,7 +38,7 @@ export const BasicLamp = styled.div`
 
 const AnimatedLamp = styled(BasicLamp)`
   ${(props: { alarm: boolean, animationCycle: number }) => props.alarm && css`
-    animation: ${blink} ${props.animationCycle}ms linear infinite;
+    animation: ${blink} ${props.animationCycle}ms infinite;
   `}
 `;
 
@@ -54,10 +53,7 @@ type LampProps = {
   onClick(lamp: LampType): void;
 } & WithSyncAnimationInjectedProps;
 
-type LampState = {
-};
-
-class Lamp extends React.PureComponent<LampProps, LampState> {
+class Lamp extends React.PureComponent<LampProps> {
   handleClick = () => {
     this.props.onClick(this.props.lamp);
   }

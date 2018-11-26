@@ -1,6 +1,6 @@
 import React from 'react';
 import { SyncAnimationContext } from './SyncAnimationProvider';
-import { Omit } from 'types/helpers';
+import { Omit } from '../../types/helpers';
 
 type WithSyncAnimationProps = {
   animationReadiness: boolean;
@@ -10,7 +10,7 @@ type WithAutoSyncTriggerProps = {
   controlledTrigger: boolean;
 
 };
-type WithSyncAnimationProviderProps = {
+type SyncAnimationProviderProps = {
   cycleTime: number;
 };
 
@@ -18,14 +18,14 @@ type WithAutoSyncTriggerState = {
   controlledTrigger: boolean;
 };
 
-const withAutoSyncTrigger = <ExtendedProps extends WithAutoSyncTriggerProps & WithSyncAnimationProviderProps>(
+const withAutoSyncTrigger = <ExtendedProps extends WithAutoSyncTriggerProps & SyncAnimationProviderProps & WithSyncAnimationProps>(
   SourceComponent: React.ComponentType<ExtendedProps>,
 ) => {
   type WithAutoSyncTriggerHocProps =
-    & Omit<ExtendedProps, keyof (WithAutoSyncTriggerProps & WithSyncAnimationProviderProps)>
+    & Omit<ExtendedProps, keyof (WithAutoSyncTriggerProps & SyncAnimationProviderProps & WithSyncAnimationProps)>
     & WithAutoSyncTriggerProps
-    & WithSyncAnimationProviderProps
-    // & WithSyncAnimationProps
+    & SyncAnimationProviderProps
+    & WithSyncAnimationProps
   ;
 
   class WithAutoSyncTriggerHoc extends React.PureComponent<WithAutoSyncTriggerHocProps, WithAutoSyncTriggerState> {
@@ -63,16 +63,17 @@ const withAutoSyncTrigger = <ExtendedProps extends WithAutoSyncTriggerProps & Wi
 
 // tslint:disable:jsx-wrap-multiline
 // tslint:disable:jsx-no-multiline-js
-export const withSyncAnimation = <ExtendedProps extends WithAutoSyncTriggerProps & WithSyncAnimationProviderProps>(
+export const withSyncAnimation = <ExtendedProps extends WithAutoSyncTriggerProps & SyncAnimationProviderProps>(
   SourceComponent: React.ComponentType<ExtendedProps>,
 ) => {
   type WithSyncAnimationHocProps =
-    & Omit<ExtendedProps, keyof (WithAutoSyncTriggerProps & WithSyncAnimationProviderProps)>
-    & WithSyncAnimationProviderProps
+    & Omit<ExtendedProps, keyof (WithAutoSyncTriggerProps & SyncAnimationProviderProps)>
     & WithAutoSyncTriggerProps
   ;
 
-  const EnhancedComponent = withAutoSyncTrigger(SourceComponent);
+  const EnhancedComponent = withAutoSyncTrigger(
+    SourceComponent as any as React.ComponentType<WithAutoSyncTriggerProps & SyncAnimationProviderProps & WithSyncAnimationProps>,
+  );
 
   class WithSyncAnimationHoc extends React.PureComponent<WithSyncAnimationHocProps> {
     render() {
@@ -95,4 +96,4 @@ export const withSyncAnimation = <ExtendedProps extends WithAutoSyncTriggerProps
   return WithSyncAnimationHoc;
 };
 
-export type WithSyncAnimationInjectedProps = WithAutoSyncTriggerProps & WithSyncAnimationProviderProps;
+export type WithSyncAnimationInjectedProps = WithAutoSyncTriggerProps & SyncAnimationProviderProps;
